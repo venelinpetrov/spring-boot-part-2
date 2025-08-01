@@ -24,9 +24,9 @@ public class UserController {
             sortBy = "name";
         }
         return userRepository.findAll(Sort.by(sortBy))
-                .stream()
-                .map(userMapper::toDto)
-                .toList();
+            .stream()
+            .map(userMapper::toDto)
+            .toList();
     }
 
     @GetMapping("/{id}")
