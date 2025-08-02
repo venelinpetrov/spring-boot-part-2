@@ -1,5 +1,6 @@
 package com.codewithmosh.store.controllers;
 
+import com.codewithmosh.store.dtos.CreateUserDto;
 import com.codewithmosh.store.dtos.UserDto;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
@@ -10,6 +11,10 @@ import java.util.Set;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.util.UriComponentsBuilder;
+
 
 @RestController
 @AllArgsConstructor
@@ -38,5 +43,18 @@ public class UserController {
         }
 
         return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @PostMapping
+    public ResponseEntity<UserDto> postMethodName(@RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+        var user = userMapper.toEntity(data);
+
+        userRepository.save(user);
+
+        var userDto = userMapper.toDto(user);
+
+        var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(userDto);
     }
 }
