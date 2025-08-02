@@ -54,12 +54,15 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDto> postMethodName(@RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-        var user = userMapper.toEntity(data);
+        var userEntity = userMapper.toEntity(data);
 
-        userRepository.save(user);
+        userRepository.save(userEntity);
 
-        var userDto = userMapper.toDto(user);
-        var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
+        var userDto = userMapper.toDto(userEntity);
+        var uri = uriBuilder
+            .path("/users/{id}")
+            .buildAndExpand(userDto.getId())
+            .toUri();
 
         return ResponseEntity.created(uri).body(userDto);
     }
