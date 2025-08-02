@@ -6,13 +6,14 @@ import com.codewithmosh.store.dtos.UpdateUserDto;
 import com.codewithmosh.store.dtos.UserDto;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
+
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 import java.util.Set;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> postMethodName(@RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<UserDto> postMethodName(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
         var userEntity = userMapper.toEntity(data);
 
         userRepository.save(userEntity);
