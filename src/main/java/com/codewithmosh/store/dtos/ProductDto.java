@@ -8,9 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class ProductDto {
-    Integer id;
-    String name;
-    String description;
-    BigDecimal price;
-    Byte categoryId;
+    private Integer id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private Byte categoryId;
 }
