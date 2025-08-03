@@ -56,9 +56,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> createuser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-        var email = userRepository.findByEmail(data.getEmail());
-
-        if (email != null) {
+        if (userRepository.existsByEmail(data.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("email", "This email is already in use"));
         }
 
