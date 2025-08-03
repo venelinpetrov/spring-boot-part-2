@@ -10,13 +10,12 @@ import com.codewithmosh.store.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +55,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> postMethodName(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<?> createuser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+        var email = userRepository.findByEmail(data.getEmail());
+
+        if (email != null) {
+            return ResponseEntity.badRequest().body(Map.of("email", "This email is already in use"));
+        }
+
         var userEntity = userMapper.toEntity(data);
 
         userRepository.save(userEntity);
