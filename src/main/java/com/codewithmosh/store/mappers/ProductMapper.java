@@ -11,7 +11,7 @@ import com.codewithmosh.store.entities.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    @Mapping(target = "categoryId", source = "product.category.id")
+    @Mapping(target = "categoryName", source = "product.category.name")
     public ProductDto toDto(Product product);
 
     public Product toEntity(CreateProductDto product);
