@@ -3,9 +3,10 @@ package com.codewithmosh.store.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,16 +16,17 @@ import java.util.Set;
 @Table(name = "carts")
 public class Cart {
     @Id
-    @Column(name = "cart_id", length = 36)
-    private String cartId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "cart_id")
+    private UUID cartId;
 
-    @Column(name = "date_created")
-    private LocalDateTime dateCreated =  LocalDateTime.now();
+    @Column(name = "date_created", insertable = false, updatable = false)
+    private LocalDate dateCreated;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart")
     private Set<CartItem> items = new HashSet<>();
 }

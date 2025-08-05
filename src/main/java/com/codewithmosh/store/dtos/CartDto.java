@@ -1,17 +1,14 @@
 package com.codewithmosh.store.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.Data;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class CartDto {
-    private String id;
-    private Set<CartItemDto> items;
-    BigDecimal totalPrice;
+    private UUID cartId;
+    private List<CartItemDto> items = new ArrayList<>();
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 }
