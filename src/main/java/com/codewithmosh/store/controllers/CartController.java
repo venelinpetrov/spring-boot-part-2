@@ -2,6 +2,8 @@ package com.codewithmosh.store.controllers;
 
 import com.codewithmosh.store.dtos.CartDto;
 import com.codewithmosh.store.dtos.CartItemDto;
+import com.codewithmosh.store.entities.Cart;
+import com.codewithmosh.store.entities.CartItem;
 import com.codewithmosh.store.mappers.ProductMapper;
 import com.codewithmosh.store.repositories.CartRepository;
 import lombok.AllArgsConstructor;
@@ -12,8 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/carts")
@@ -61,6 +69,22 @@ public class CartController {
 
         cartDto.setTotalPrice(total);
 
+        return ResponseEntity.ok(cartDto);
+    }
+
+    @PostMapping
+    public ResponseEntity<CartDto> createCart() {
+        var uuid = UUID.randomUUID().toString();
+        var cartDto = new CartDto(uuid, new HashSet<CartItemDto>(), BigDecimal.ZERO);
+
+        var cartEntity = new Cart(
+            cartDto.getId(),
+            LocalDateTime.now(),
+            null,
+            new HashSet<CartItem>()
+        );
+
+        cartRepository.save(cartEntity);
         return ResponseEntity.ok(cartDto);
     }
 }
