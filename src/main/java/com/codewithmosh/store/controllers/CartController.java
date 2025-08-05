@@ -1,25 +1,29 @@
 package com.codewithmosh.store.controllers;
 
+import com.codewithmosh.store.dtos.AddItemToCartDto;
 import com.codewithmosh.store.dtos.CartDto;
+import com.codewithmosh.store.dtos.CartItemDto;
 import com.codewithmosh.store.entities.Cart;
+import com.codewithmosh.store.entities.CartItem;
 import com.codewithmosh.store.mappers.CartMapper;
-import com.codewithmosh.store.mappers.ProductMapper;
 import com.codewithmosh.store.repositories.CartRepository;
+import com.codewithmosh.store.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/carts")
 @AllArgsConstructor
 public class CartController {
     private final CartMapper cartMapper;
+    private final ProductRepository productRepository;
     private CartRepository cartRepository;
-    private ProductMapper productMapper;
 
     @PostMapping
     public ResponseEntity<CartDto> createCart(UriComponentsBuilder uriBuilder) {
@@ -31,5 +35,44 @@ public class CartController {
         var uri = uriBuilder.path("/carts/{cart_id}").buildAndExpand(cartDto.getCartId()).toUri();
 
         return ResponseEntity.created(uri).body(cartDto);
+    }
+
+    @PostMapping("/{cartId}/items")
+    public ResponseEntity<CartItemDto> addToCart(
+        @PathVariable(name = "cartId") UUID cartId,
+        @RequestBody AddItemToCartDto body) {
+
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var product = productRepository.findById(body.getProductId()).orElse(null);
+
+        if (product == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var cartItem = cart.getItems()
+            .stream()
+            .filter(item -> item.getProduct().getId().equals(product.getId()))
+            .findFirst()
+            .orElse(null);
+
+        if (cartItem != null) {
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+        } else {
+            cartItem = new CartItem();
+            cartItem.setProduct(product);
+            cartItem.setQuantity(1);
+            cartItem.setCart(cart);
+            cart.getItems().add(cartItem);
+        }
+
+        cartRepository.save(cart);
+
+        var cartItemDto = cartMapper.toDto(cartItem);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto);
     }
 }
