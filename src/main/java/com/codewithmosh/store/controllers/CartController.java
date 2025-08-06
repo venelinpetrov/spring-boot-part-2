@@ -3,6 +3,7 @@ package com.codewithmosh.store.controllers;
 import com.codewithmosh.store.dtos.AddItemToCartDto;
 import com.codewithmosh.store.dtos.CartDto;
 import com.codewithmosh.store.dtos.CartItemDto;
+import com.codewithmosh.store.dtos.UpdateCartItemDto;
 import com.codewithmosh.store.entities.Cart;
 import com.codewithmosh.store.entities.CartItem;
 import com.codewithmosh.store.mappers.CartMapper;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -87,5 +89,37 @@ public class CartController {
         var cartDto = cartMapper.toDto(cart);
 
         return ResponseEntity.ok(cartDto);
+    }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> updateCartItem(
+        @PathVariable(name = "cartId") UUID cartId,
+        @PathVariable(name = "productId") Byte productId,
+        @RequestBody UpdateCartItemDto body) {
+
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of("error", "Cart with id " + cartId + " not found.")
+            );
+        }
+
+        var cartItem = cart.getItems().stream()
+            .filter(item -> item.getProduct().getId().equals(productId))
+            .findFirst()
+            .orElse(null);
+
+        if (cartItem == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of("error", "Product with id " + productId + " not found.")
+            );
+        }
+
+        cartItem.setQuantity(body.getQuantity());
+        cartRepository.save(cart);
+        var cartItemDto = cartMapper.toDto(cartItem);
+
+        return ResponseEntity.ok(cartItemDto);
     }
 }
