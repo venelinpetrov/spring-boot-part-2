@@ -9,6 +9,7 @@ import com.codewithmosh.store.entities.CartItem;
 import com.codewithmosh.store.mappers.CartMapper;
 import com.codewithmosh.store.repositories.CartRepository;
 import com.codewithmosh.store.repositories.ProductRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,7 @@ public class CartController {
     public ResponseEntity<?> updateCartItem(
         @PathVariable(name = "cartId") UUID cartId,
         @PathVariable(name = "productId") Byte productId,
-        @RequestBody UpdateCartItemDto body) {
+        @Valid @RequestBody UpdateCartItemDto body) {
 
         var cart = cartRepository.getCartWithItems(cartId).orElse(null);
 
