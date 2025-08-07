@@ -28,7 +28,7 @@ public class Cart {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.MERGE, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<CartItem> items = new HashSet<>();
 
     public BigDecimal getTotalPrice() {
@@ -58,5 +58,14 @@ public class Cart {
         }
 
         return cartItem;
+    }
+
+    public void removeItem(Byte productId) {
+        var cartItem = getItem(productId);
+
+        if (cartItem != null) {
+            items.remove(cartItem);
+            cartItem.setCart(null);
+        }
     }
 }
