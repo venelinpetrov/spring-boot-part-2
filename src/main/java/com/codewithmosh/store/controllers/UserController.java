@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public Iterable<UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "", name="sort") String sortBy) {
@@ -55,13 +57,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createuser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
         if (userRepository.existsByEmail(data.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("email", "This email is already in use"));
         }
 
         var userEntity = userMapper.toEntity(data);
-
+        userEntity.setPassword(passwordEncoder.encode(data.getPassword()));
         userRepository.save(userEntity);
 
         var userDto = userMapper.toDto(userEntity);
