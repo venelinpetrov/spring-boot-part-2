@@ -2,12 +2,13 @@
 
 We need 4 main pieces
 
-1. SecurityConfig
-2. JwtAuthenticationFilter
-3. JwtService
-4. AuthController
+1. `SecurityConfig` (configures which routes are authenticated)
+2. `JwtAuthenticationFilter` (http interceptor)
+3. `JwtService` (token creation and validation)
+4. `AuthController` (/login, returns a token if credentials match)
 
-Flow:
+### Flow when visiting authenticated routes
+
 Note: In `SecurityConfig`, we set `JwtAuthenticationFilter` to be the first in the filter chain. This will become important later
 
 - We check Authorization headers with each request (`JwtAuthenticationFilter`)
@@ -23,3 +24,13 @@ Note: In `SecurityConfig`, we set `JwtAuthenticationFilter` to be the first in t
     * If route is `.authenticated()` and user is anonymous - rejects with 401
     * If route is `.permitAll()` - allow
     * If route is `.authenticated()` and user from JWT - allow
+
+
+### Flow during login
+
+- We hit the unauthenticated route `POST /login`
+- The controller delegates to `authenticationManager.authenticate(email, password)`
+- `AuthenticationManager` calls `DaoAuthenticationProvider`
+- `DaoAuthenticationProvider` calls `userDetailsService.loadUserByUsername(email)`
+- `UserService` runs `findByEmail(...)` and returns a `UserDetails` object. Note: `UserService` implements `UserDetailsService` and overrides `loadUserByUsername`. This way we can use email, username, phone, id, etc, whatever unique identifier to find the user.
+- Password check happens via `BCryptPasswordEncoder.matches(...)`
