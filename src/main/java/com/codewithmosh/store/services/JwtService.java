@@ -1,5 +1,7 @@
 package com.codewithmosh.store.services;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +19,29 @@ public class JwtService {
             .subject(email)
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
-            .signWith(Keys.hmacShaKeyFor((secret.getBytes()))) // todo remove secret from code and store it securely
+            .signWith(Keys.hmacShaKeyFor((secret.getBytes())))
             .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            var claims = getClaims(token);
+
+            return claims.getExpiration().after(new Date());
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
