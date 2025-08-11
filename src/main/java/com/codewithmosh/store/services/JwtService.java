@@ -1,13 +1,12 @@
 package com.codewithmosh.store.services;
 
 import com.codewithmosh.store.config.JwtConfig;
+import com.codewithmosh.store.entities.Role;
 import com.codewithmosh.store.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -30,6 +29,7 @@ public class JwtService {
             .subject(user.getId().toString())
             .claim("email", user.getEmail())
             .claim("name", user.getName())
+            .claim("role", user.getRole().toString())
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + tokenExpiration * 1000))
             .signWith(jwtConfig.getSecret())
@@ -49,6 +49,10 @@ public class JwtService {
 
     public Long getUserIdFromToken(String token) {
         return Long.valueOf(getClaims(token).getSubject());
+    }
+
+    public Role getRoleFromToken(String token) {
+        return Role.valueOf(getClaims(token).get("role", String.class));
     }
 
     private Claims getClaims(String token) {

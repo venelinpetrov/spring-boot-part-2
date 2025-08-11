@@ -4,6 +4,7 @@ import com.codewithmosh.store.dtos.ChangePasswordRequest;
 import com.codewithmosh.store.dtos.CreateUserDto;
 import com.codewithmosh.store.dtos.UpdateUserDto;
 import com.codewithmosh.store.dtos.UserDto;
+import com.codewithmosh.store.entities.Role;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
 
@@ -64,6 +65,7 @@ public class UserController {
 
         var userEntity = userMapper.toEntity(data);
         userEntity.setPassword(passwordEncoder.encode(data.getPassword()));
+        userEntity.setRole(Role.USER);
         userRepository.save(userEntity);
 
         var userDto = userMapper.toDto(userEntity);
