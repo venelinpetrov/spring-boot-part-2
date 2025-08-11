@@ -1,7 +1,6 @@
 package com.codewithmosh.store.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,5 +32,4 @@ public class OrderItem {
 
     @Column(name = "total_price")
     private BigDecimal totalPrice;
-
 }

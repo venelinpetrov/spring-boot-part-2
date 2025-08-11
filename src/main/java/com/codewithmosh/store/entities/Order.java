@@ -1,13 +1,8 @@
 package com.codewithmosh.store.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,6 +33,18 @@ public class Order {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private Set<OrderItem> items = new LinkedHashSet<>();
+
+    public void addItems(Set<CartItem> item) {
+        for (CartItem cartItem : item) {
+            var orderItem = new OrderItem();
+            orderItem.setOrder(this);
+            orderItem.setTotalPrice(cartItem.getTotalPrice());
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setUnitPrice(cartItem.getProduct().getPrice());
+            items.add(orderItem);
+        }
+    }
 }
