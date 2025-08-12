@@ -55,9 +55,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
         if (userRepository.existsByEmail(data.getEmail())) {
-            return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
+            return ResponseEntity.badRequest().build();
         }
 
         var userEntity = userMapper.toEntity(data);

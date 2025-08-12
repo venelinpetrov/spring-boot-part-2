@@ -1,6 +1,6 @@
 # Exception handling in Spring Boot with Java
 
-Sometimes a controller can return a result or throw an exception. Like this
+Oftentimes a controller can return either a response DTO or an error response, like this
 
 ```java
 @GetMapping("/me")
@@ -19,27 +19,27 @@ public ResponseEntity<UserDto> getCurrentUser() {
 }
 ```
 
-but as soon as you want a custom exception message
+but as soon as you want a custom message
 
 ```java
 @PostMapping
 public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-    if (userRepository.existsByEmail(data.getEmail())) {
-        return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
-    }
+  if (userRepository.existsByEmail(data.getEmail())) {
+    return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
+  }
 
-    var userEntity = userMapper.toEntity(data);
-    userEntity.setPassword(passwordEncoder.encode(data.getPassword()));
-    userEntity.setRole(Role.USER);
-    userRepository.save(userEntity);
+  var userEntity = userMapper.toEntity(data);
+  userEntity.setPassword(passwordEncoder.encode(data.getPassword()));
+  userEntity.setRole(Role.USER);
+  userRepository.save(userEntity);
 
-    var userDto = userMapper.toDto(userEntity);
-    var uri = uriBuilder
-            .path("/users/{id}")
-            .buildAndExpand(userDto.getId())
-            .toUri();
+  var userDto = userMapper.toDto(userEntity);
+  var uri = uriBuilder
+          .path("/users/{id}")
+          .buildAndExpand(userDto.getId())
+          .toUri();
 
-    return ResponseEntity.created(uri).body(userDto);
+  return ResponseEntity.created(uri).body(userDto);
 }
 ```
 
@@ -53,23 +53,23 @@ One way to keep strong typing is to define a wrapper type that can represent bot
 
 ```java
 public class ApiResponse<T> {
-    private T data;
-    private ErrorDto error;
+  private T data;
+  private ErrorDto error;
 
-    public static <T> ApiResponse<T> success(T data) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.data = data;
-        return response;
-    }
+  public static <T> ApiResponse<T> success(T data) {
+    ApiResponse<T> response = new ApiResponse<>();
+    response.data = data;
+    return response;
+  }
 
-    public static <T> ApiResponse<T> error(String message) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.error = new ErrorDto(message);
-        return response;
-    }
+  public static <T> ApiResponse<T> error(String message) {
+    ApiResponse<T> response = new ApiResponse<>();
+    response.error = new ErrorDto(message);
+    return response;
+  }
 
-    public T getData() { return data; }
-    public ErrorDto getError() { return error; }
+  public T getData() { return data; }
+  public ErrorDto getError() { return error; }
 }
 ```
 
@@ -78,20 +78,20 @@ Then, in the controller
 ```java
 @PostMapping
 public ResponseEntity<ApiResponse<UserDto>> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-    if (userRepository.existsByEmail(data.getEmail())) {
-        return ResponseEntity.badRequest().body(ApiResponse.error("Email already in use"));
-    }
+  if (userRepository.existsByEmail(data.getEmail())) {
+    return ResponseEntity.badRequest().body(ApiResponse.error("Email already in use"));
+  }
 
-    // ...
+  // ...
 
-    return ResponseEntity.created(uri).body(userDto);
+  return ResponseEntity.created(uri).body(userDto);
 }
 ```
 
 **Pros:**
 
 - Strong typing: `ApiResponse<CheckoutResponseDto>` is consistent for both success and error cases. A wrapper type guarantees that
-the client always gets a predictable JSON structure, e.g.
+  the client always gets a predictable JSON structure, e.g.
 
 ```json lines
 // success
@@ -125,13 +125,13 @@ Then:
 ```java
 @PostMapping
 public ResponseEntity<UserResult> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-    if (userRepository.existsByEmail(data.getEmail())) {
-        return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
-    }
+  if (userRepository.existsByEmail(data.getEmail())) {
+    return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
+  }
 
-    // ...
+  // ...
 
-    return ResponseEntity.created(uri).body(userDto);
+  return ResponseEntity.created(uri).body(userDto);
 }
 ```
 
@@ -166,21 +166,21 @@ Instead of returning an error DTO directly, you can throw exceptions for bad req
 ```java
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestException extends RuntimeException {
-    public BadRequestException(String message) {
-        super(message);
-    }
+  public BadRequestException(String message) {
+    super(message);
+  }
 }
 ```
 
 ```java
 public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-    if (userRepository.existsByEmail(data.getEmail())) {
-        throw new BadRequestException("Email is already in use");
-    }
+  if (userRepository.existsByEmail(data.getEmail())) {
+    throw new BadRequestException("Email is already in use");
+  }
 
-    // ...
+  // ...
 
-    return ResponseEntity.created(uri).body(userDto);
+  return ResponseEntity.created(uri).body(userDto);
 }
 ```
 
@@ -189,10 +189,10 @@ Then in a global handler:
 ```java
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorDto> handleBadRequest(BadRequestException ex) {
-        return ResponseEntity.badRequest().body(new ErrorDto(ex.getMessage()));
-    }
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<ErrorDto> handleBadRequest(BadRequestException ex) {
+    return ResponseEntity.badRequest().body(new ErrorDto(ex.getMessage()));
+  }
 }
 ```
 
@@ -215,23 +215,23 @@ Same as Option 1:
 
 ```java
 public class ApiResponse<T> {
-    private T data;
-    private ErrorDto error;
+  private T data;
+  private ErrorDto error;
 
-    public static <T> ApiResponse<T> success(T data) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.data = data;
-        return response;
-    }
+  public static <T> ApiResponse<T> success(T data) {
+    ApiResponse<T> response = new ApiResponse<>();
+    response.data = data;
+    return response;
+  }
 
-    public static <T> ApiResponse<T> error(String message) {
-        ApiResponse<T> response = new ApiResponse<>();
-        response.error = new ErrorDto(message);
-        return response;
-    }
+  public static <T> ApiResponse<T> error(String message) {
+    ApiResponse<T> response = new ApiResponse<>();
+    response.error = new ErrorDto(message);
+    return response;
+  }
 
-    public T getData() { return data; }
-    public ErrorDto getError() { return error; }
+  public T getData() { return data; }
+  public ErrorDto getError() { return error; }
 }
 ```
 
@@ -240,9 +240,9 @@ Throw this for validation or business rule failures:
 ```java
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ApiException extends RuntimeException {
-    public ApiException(String message) {
-        super(message);
-    }
+  public ApiException(String message) {
+    super(message);
+  }
 }
 ```
 
@@ -251,20 +251,20 @@ Global exception handler:
 ```java
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiResponse<?>> handleApiException(ApiException ex) {
-        return ResponseEntity
+  @ExceptionHandler(ApiException.class)
+  public ResponseEntity<ApiResponse<?>> handleApiException(ApiException ex) {
+    return ResponseEntity
             .badRequest()
             .body(ApiResponse.error(ex.getMessage()));
-    }
+  }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGeneralException(Exception ex) {
-        // Log actual error internally
-        return ResponseEntity
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ApiResponse<?>> handleGeneralException(Exception ex) {
+    // Log actual error internally
+    return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ApiResponse.error("An unexpected error occurred"));
-    }
+  }
 }
 ```
 
@@ -272,13 +272,13 @@ Now your controller stays lean and returns only success cases:
 
 ```java
 public ResponseEntity<ApiResponse<UserDto>> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
-    if (userRepository.existsByEmail(data.getEmail())) {
-        throw new ApiException("Email is already in use");
-    }
+  if (userRepository.existsByEmail(data.getEmail())) {
+    throw new ApiException("Email is already in use");
+  }
 
-    // ...
+  // ...
 
-    return ResponseEntity.created(uri).body(ApiResponse.success(userDto));
+  return ResponseEntity.created(uri).body(ApiResponse.success(userDto));
 }
 ```
 
@@ -297,16 +297,16 @@ Create a Base exception. Instead of ApiException being tied to 400, make it abst
 
 ```java
 public abstract class ApiException extends RuntimeException {
-    private final HttpStatus status;
+  private final HttpStatus status;
 
-    protected ApiException(HttpStatus status, String message) {
-        super(message);
-        this.status = status;
-    }
+  protected ApiException(HttpStatus status, String message) {
+    super(message);
+    this.status = status;
+  }
 
-    public HttpStatus getStatus() {
-        return status;
-    }
+  public HttpStatus getStatus() {
+    return status;
+  }
 }
 ```
 
@@ -314,21 +314,21 @@ Create specific exceptions. These make your controller code self-documenting and
 
 ```java
 public class BadRequestException extends ApiException {
-    public BadRequestException(String message) {
-        super(HttpStatus.BAD_REQUEST, message);
-    }
+  public BadRequestException(String message) {
+    super(HttpStatus.BAD_REQUEST, message);
+  }
 }
 
 public class NotFoundException extends ApiException {
-    public NotFoundException(String message) {
-        super(HttpStatus.NOT_FOUND, message);
-    }
+  public NotFoundException(String message) {
+    super(HttpStatus.NOT_FOUND, message);
+  }
 }
 
 public class UnauthorizedException extends ApiException {
-    public UnauthorizedException(String message) {
-        super(HttpStatus.UNAUTHORIZED, message);
-    }
+  public UnauthorizedException(String message) {
+    super(HttpStatus.UNAUTHORIZED, message);
+  }
 }
 ```
 
@@ -338,20 +338,20 @@ Now in `GlobalExceptionHandler` one handler method can handle all `ApiException`
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiResponse<?>> handleApiException(ApiException ex) {
-        return ResponseEntity
+  @ExceptionHandler(ApiException.class)
+  public ResponseEntity<ApiResponse<?>> handleApiException(ApiException ex) {
+    return ResponseEntity
             .status(ex.getStatus())
             .body(ApiResponse.error(ex.getMessage()));
-    }
+  }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleUnexpectedException(Exception ex) {
-        // Log internally for debugging
-        return ResponseEntity
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ApiResponse<?>> handleUnexpectedException(Exception ex) {
+    // Log internally for debugging
+    return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ApiResponse.error("An unexpected error occurred"));
-    }
+  }
 }
 ```
 
@@ -361,17 +361,17 @@ Controller example:
 @PostMapping
 @Transactional
 public ResponseEntity<ApiResponse<CheckoutResponseDto>> checkout(
-    @Valid @RequestBody CheckoutRequestDto request) {
+        @Valid @RequestBody CheckoutRequestDto request) {
 
-    var cart = cartRepository.getCartWithItems(request.getCartId())
-        .orElseThrow(() -> new NotFoundException("Cart not found"));
+  var cart = cartRepository.getCartWithItems(request.getCartId())
+          .orElseThrow(() -> new NotFoundException("Cart not found"));
 
-    if (cart.getItems().isEmpty()) {
-        throw new BadRequestException("Cart is empty");
-    }
+  if (cart.getItems().isEmpty()) {
+    throw new BadRequestException("Cart is empty");
+  }
 
-    // ...
+  // ...
 
-    return ResponseEntity.ok(ApiResponse.success(new CheckoutResponseDto(order.getId())));
+  return ResponseEntity.ok(ApiResponse.success(new CheckoutResponseDto(order.getId())));
 }
 ```

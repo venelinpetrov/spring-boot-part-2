@@ -19,9 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @AllArgsConstructor
 @RequestMapping("/auth")
+@RestController
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
