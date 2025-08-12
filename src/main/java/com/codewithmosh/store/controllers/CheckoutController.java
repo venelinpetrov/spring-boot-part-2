@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("/checkout")
@@ -45,15 +43,8 @@ public class CheckoutController {
         }
 
         var user = authService.getCurrentuser();
-
-        var order = new Order();
-        order.setCustomer(user);
-        order.setStatus(OrderStatus.PENDING);
-        order.setTotalPrice(cart.getTotalPrice());
-        order.addItems(cart.getItems());
-
+        var order = Order.fromCart(cart, user);
         orderRepository.save(order);
-
         cartService.clearCart(cart.getCartId());
 
         return ResponseEntity.ok(new CheckoutResponseDto(order.getId()));

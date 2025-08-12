@@ -2,10 +2,12 @@ package com.codewithmosh.store.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -32,4 +34,12 @@ public class OrderItem {
 
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+
+    public OrderItem(Order order, Product product, int quantity) {
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+        this.unitPrice = product.getPrice();
+        this.totalPrice = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
 }
