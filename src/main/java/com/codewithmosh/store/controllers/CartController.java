@@ -1,9 +1,6 @@
 package com.codewithmosh.store.controllers;
 
-import com.codewithmosh.store.dtos.AddItemToCartDto;
-import com.codewithmosh.store.dtos.CartDto;
-import com.codewithmosh.store.dtos.CartItemDto;
-import com.codewithmosh.store.dtos.UpdateCartItemDto;
+import com.codewithmosh.store.dtos.*;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
 import com.codewithmosh.store.exceptions.ProductNotFoundException;
 import com.codewithmosh.store.repositories.CartRepository;
@@ -48,7 +45,7 @@ public class CartController {
     }
 
     @PutMapping("/{cartId}/items/{productId}")
-    public ResponseEntity<?> updateCartItem(
+    public ResponseEntity<CartItemDto> updateCartItem(
         @PathVariable(name = "cartId") UUID cartId,
         @PathVariable(name = "productId") Byte productId,
         @Valid @RequestBody UpdateCartItemDto body) {
@@ -58,7 +55,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{cartId}/items/{productId}")
-    public ResponseEntity<?> deleteCartItem(
+    public ResponseEntity<Void> deleteCartItem(
         @PathVariable("cartId") UUID cartId,
         @PathVariable("productId") Byte productId) {
         cartService.deleteCartItem(cartId, productId);
@@ -74,16 +71,16 @@ public class CartController {
     }
 
     @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleCartNotFound() {
+    public ResponseEntity<ErrorDto> handleCartNotFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            Map.of("error", "Cart not found")
+            new ErrorDto("Cart not found")
         ) ;
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleProductNotFound() {
+    public ResponseEntity<ErrorDto> handleProductNotFound() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            Map.of("error", "Product not found in cart")
+            new ErrorDto("Product not found in cart")
         );
     }
 }

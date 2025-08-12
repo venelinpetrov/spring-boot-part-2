@@ -1,9 +1,6 @@
 package com.codewithmosh.store.controllers;
 
-import com.codewithmosh.store.dtos.ChangePasswordRequest;
-import com.codewithmosh.store.dtos.CreateUserDto;
-import com.codewithmosh.store.dtos.UpdateUserDto;
-import com.codewithmosh.store.dtos.UserDto;
+import com.codewithmosh.store.dtos.*;
 import com.codewithmosh.store.entities.Role;
 import com.codewithmosh.store.mappers.UserMapper;
 import com.codewithmosh.store.repositories.UserRepository;
@@ -60,7 +57,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto data, UriComponentsBuilder uriBuilder) {
         if (userRepository.existsByEmail(data.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("email", "This email is already in use"));
+            return ResponseEntity.badRequest().body(new ErrorDto("Email already in use"));
         }
 
         var userEntity = userMapper.toEntity(data);
