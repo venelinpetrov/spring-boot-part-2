@@ -6,14 +6,17 @@ import com.codewithmosh.store.exceptions.CartEmptyException;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
 import com.codewithmosh.store.exceptions.PaymentException;
 import com.codewithmosh.store.services.CheckoutService;
+import com.codewithmosh.store.services.WebhookRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+import java.util.Map;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/checkout")
 public class CheckoutController {
@@ -23,6 +26,14 @@ public class CheckoutController {
     @Transactional
     public ResponseEntity<?> checkout(@Valid @RequestBody CheckoutRequestDto request) {
         return ResponseEntity.ok(checkoutService.checkout(request));
+    }
+
+    @PostMapping("/webhook")
+    public void handleWebhook (
+        @RequestHeader Map<String, String> headers,
+        @RequestBody String payload
+    ) {
+        checkoutService.handleWebhookEvent(new WebhookRequest(headers, payload));
     }
 
     @ExceptionHandler({ CartNotFoundException.class, CartEmptyException.class })
