@@ -1,9 +1,9 @@
-package com.codewithmosh.store.services;
+package com.codewithmosh.store.payments.services;
 
 import com.codewithmosh.store.entities.Order;
 import com.codewithmosh.store.entities.OrderItem;
 import com.codewithmosh.store.entities.PaymentStatus;
-import com.codewithmosh.store.exceptions.PaymentException;
+import com.codewithmosh.store.payments.exceptions.PaymentException;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
@@ -32,8 +32,11 @@ public class StripePaymentGateway implements PaymentGateway {
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(websiteUrl + "/checkout-success?orderId=" + order.getId())
                 .setCancelUrl(websiteUrl + "/checkout-cancel")
-                .putMetadata("order_id", order.getId().toString());
-
+                .setPaymentIntentData(
+                    SessionCreateParams.PaymentIntentData.builder()
+                        .putMetadata("order_id", order.getId().toString())
+                        .build()
+                );
             order.getItems()
                 .forEach(item -> {
                     var lineItem = createLineItem(item);

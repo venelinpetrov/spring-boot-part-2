@@ -1,12 +1,12 @@
-package com.codewithmosh.store.controllers;
+package com.codewithmosh.store.payments.controllers;
 
-import com.codewithmosh.store.dtos.CheckoutRequestDto;
 import com.codewithmosh.store.dtos.ErrorDto;
 import com.codewithmosh.store.exceptions.CartEmptyException;
 import com.codewithmosh.store.exceptions.CartNotFoundException;
-import com.codewithmosh.store.exceptions.PaymentException;
-import com.codewithmosh.store.services.CheckoutService;
-import com.codewithmosh.store.services.WebhookRequest;
+import com.codewithmosh.store.payments.services.CheckoutService;
+import com.codewithmosh.store.payments.exceptions.PaymentException;
+import com.codewithmosh.store.payments.services.WebhookRequest;
+import com.codewithmosh.store.payments.dtos.CheckoutRequestDto;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
