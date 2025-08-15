@@ -1,9 +1,8 @@
 package com.codewithmosh.store.controllers;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import com.codewithmosh.store.dtos.ErrorDto;
+import com.codewithmosh.store.common.dtos.ErrorDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

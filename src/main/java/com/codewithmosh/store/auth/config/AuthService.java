@@ -1,0 +1,21 @@
+package com.codewithmosh.store.auth.config;
+
+import com.codewithmosh.store.user.entities.User;
+import com.codewithmosh.store.user.repositories.UserRepository;
+
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+@AllArgsConstructor
+@Service
+public class AuthService {
+    private final UserRepository userRepository;
+
+    public User getCurrentuser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userId = (Long) authentication.getPrincipal();
+
+        return userRepository.findById(userId).orElse(null);
+    }
+}

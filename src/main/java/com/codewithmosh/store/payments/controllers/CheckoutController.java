@@ -1,8 +1,8 @@
 package com.codewithmosh.store.payments.controllers;
 
-import com.codewithmosh.store.dtos.ErrorDto;
-import com.codewithmosh.store.exceptions.CartEmptyException;
-import com.codewithmosh.store.exceptions.CartNotFoundException;
+import com.codewithmosh.store.cart.exceptions.CartEmptyException;
+import com.codewithmosh.store.cart.exceptions.CartNotFoundException;
+import com.codewithmosh.store.common.dtos.ErrorDto;
 import com.codewithmosh.store.payments.services.CheckoutService;
 import com.codewithmosh.store.payments.exceptions.PaymentException;
 import com.codewithmosh.store.payments.services.WebhookRequest;

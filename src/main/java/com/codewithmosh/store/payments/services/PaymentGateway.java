@@ -1,8 +1,8 @@
 package com.codewithmosh.store.payments.services;
 
-import com.codewithmosh.store.entities.Order;
-
 import java.util.Optional;
+
+import com.codewithmosh.store.orders.entities.Order;
 
 public interface PaymentGateway {
     CheckoutSession createCheckoutSession(Order order);
