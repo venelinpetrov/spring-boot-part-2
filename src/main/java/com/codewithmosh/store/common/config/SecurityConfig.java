@@ -2,8 +2,12 @@ package com.codewithmosh.store.common.config;
 
 import com.codewithmosh.store.auth.entities.Role;
 import com.codewithmosh.store.auth.filters.JwtAuthenticationFilter;
+import com.codewithmosh.store.common.SecurityRules;
 
 import lombok.AllArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +32,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final List<SecurityRules> featureSecurityRules;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,24 +58,10 @@ public class SecurityConfig {
         http
             .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(c -> c
-                .requestMatchers("/carts/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/products/**").hasRole(Role.ADMIN.toString())
-                .requestMatchers(HttpMethod.PUT, "/products/**").hasRole(Role.ADMIN.toString())
-                .requestMatchers(HttpMethod.DELETE, "/products/**").hasRole(Role.ADMIN.toString())
-                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
-                .requestMatchers(HttpMethod.POST, "/checkout/webhook").permitAll()
-                .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
-                    .requestMatchers(
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**"
-                    ).permitAll()
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(c -> {
+                featureSecurityRules.forEach(r -> r.configure(c));
+                c.anyRequest().authenticated();
+            })
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(c -> {
                 c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
