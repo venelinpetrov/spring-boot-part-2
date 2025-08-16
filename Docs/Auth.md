@@ -2,7 +2,7 @@
 
 We need 4 main pieces
 
-1. `SecurityConfig` (configures which routes are authenticated)
+1. `SecurityConfig` (configures which routes are authenticated, or combines rules from feature configurations~~~~)
 2. `JwtAuthenticationFilter` (http interceptor)
 3. `JwtService` (token creation and validation)
 4. `AuthController` (/login, returns a token if credentials match)
