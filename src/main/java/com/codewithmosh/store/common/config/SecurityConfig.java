@@ -1,6 +1,5 @@
 package com.codewithmosh.store.common.config;
 
-import com.codewithmosh.store.auth.entities.Role;
 import com.codewithmosh.store.auth.filters.JwtAuthenticationFilter;
 import com.codewithmosh.store.common.SecurityRules;
 
@@ -10,7 +9,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -63,6 +61,7 @@ public class SecurityConfig {
                 featureSecurityRules.forEach(r -> r.configure(c));
                 c.anyRequest().authenticated();
             })
+            .cors(c -> {})
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(c -> {
                 c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
