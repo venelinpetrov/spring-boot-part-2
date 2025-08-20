@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 import java.util.Date;
 
 @AllArgsConstructor
@@ -23,28 +24,38 @@ public class JwtService {
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
 
-    public Jwt generateToken(User user, long tokenExpiration) {
+    private Jwt generateToken(User user, long tokenExpirationSeconds) {
+        Date now = new Date();
+        Date expiryDate = new Date(System.currentTimeMillis() + tokenExpirationSeconds * 1000);
+
         var claims = Jwts.claims()
             .subject(user.getId().toString())
             .add("email", user.getEmail())
             .add("name", user.getName())
             .add("role", user.getRole().toString())
-            .issuedAt(new Date())
-            .expiration(new Date(System.currentTimeMillis() + tokenExpiration * 1000))
+            .issuedAt(now)
+            .expiration(expiryDate)
             .build();
 
-        return new Jwt(claims, jwtConfig.getSecret());
+        String token = Jwts.builder()
+            .claims(claims)
+            .signWith(jwtConfig.getSigningKey())
+            .compact();
+
+        return new Jwt(claims, token);
     }
 
     public Jwt parseToken(String token) {
         try {
             var claims = Jwts.parser()
-                .verifyWith(jwtConfig.getSecret())
+                .verifyWith(jwtConfig.getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-            return new Jwt(claims, jwtConfig.getSecret());
+
+            return new Jwt(claims, token);
         } catch (JwtException e) {
+            System.out.println("Invalid JWT: " + e.getMessage());
             return null;
         }
     }

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @ConfigurationProperties(prefix = "spring.jwt")
@@ -15,7 +16,7 @@ public class JwtConfig {
     private int accessTokenExpiration;
     private int refreshTokenExpiration;
 
-    public SecretKey getSecret() {
-        return Keys.hmacShaKeyFor((secret.getBytes()));
+    public SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 }
